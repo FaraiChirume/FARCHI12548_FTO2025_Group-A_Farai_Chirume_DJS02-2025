@@ -1,32 +1,23 @@
-import { GenreService } from "../utils/GenreService.js";
-import { DateUtils } from "../utils/DateUtils.js";
-
 /**
- * Podcast Card Factory - Creates a DOM element for a podcast preview card.
- *
- * @principle SRP - Only responsible for rendering one podcast card.
- * @principle OCP - Card rendering logic can be extended (e.g., add badges or icons) without changing other modules.
- *
+ * Trigger a custom event when a user interacts with the component
  * @param {Object} podcast - Podcast object.
  * @param {Function} onClick - Function to call on card click.
- * @returns {HTMLDivElement} The constructed card element.
+ * @returns {HTMLElement} podcast- preview element.
  */
 export const createPodcastCard = (podcast, onClick) => {
-  const genreNames = GenreService.getNames(podcast.genres);
-  const card = document.createElement("div");
-  card.className = "card";
-  card.dataset.id = podcast.id;
+  const card = document.createElement("podcast-preview");
+  
+  //Pass podcast data via attributes
+  card.setAttribute("id", podcast.id);
+  card.setAttribute("title", podcast.title);
+  card.setAttribute("image", podcast.image);
+  card.setAttribute("seasons", podcast.seasons);
+  card.setAttribute("genres", podcast.genres.join(","));
+  card.setAttribute("updated", podcast.updated);
 
-  card.innerHTML = `
-    <img src="${podcast.image}" alt="${podcast.title} cover"/>
-    <h3>${podcast.title}</h3>
-    <p>${podcast.seasons} season${podcast.seasons > 1 ? "s" : ""}</p>
-    <div class="tags">${genreNames
-      .map((g) => `<span class="tag">${g}</span>`)
-      .join("")}</div>
-    <p class="updated-text">${DateUtils.format(podcast.updated)}</p>
-  `;
-
-  card.addEventListener("click", () => onClick(podcast));
+  //Listen for the custom event from the component
+  card.addEventListener("podcast-selected", (e) => {
+    onClick(e.detail);
+  });
   return card;
 };
